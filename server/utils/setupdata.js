@@ -13,15 +13,21 @@ import {
 import {
     ROLE_SUPER_ADMIN,
     ROLE_ADMIN,
-    ROLE_APP_USER,
-    APP_USER_EMAIL,
-    SUPER_ADMIN_EMAIL,
-    ADMIN_EMAIL
+    ROLE_APP_USER
 } from "../serverconstants"
 
-export const addInitialData = async () => {
+export const setupSnippetData = async (config) => {
+    console.log("************ ADDING SNIPPET DATA ************")
+    //console.log("received config ", config)
+    await addPermissions()
+    await addRoles()
+    await addAdminUsers(config)
 
-    console.log("Adding initial data")
+}
+
+const addPermissions = async () => {
+
+    console.log("SETTING UP PERMISSIONS ...")
 
     if (!await PermissionModel.exists(MANAGE_PERMISSIONS)) {
         await PermissionModel.savePermission({
@@ -70,6 +76,11 @@ export const addInitialData = async () => {
             name: DELETE_USER
         })
     }
+}
+
+const addRoles = async () => {
+
+    console.log("SETTING UP ROLES ...")
 
     /**
      * Super admin can manage users/permissions and roles
@@ -137,14 +148,11 @@ export const addInitialData = async () => {
             deleteUserPermissions.enabled = true
             permissions.push(deleteUserPermissions)
         }
-
-
         await RoleModel.saveRole({
             name: ROLE_ADMIN,
             permissions: permissions
         })
     }
-
 
     if (!await RoleModel.exists(ROLE_APP_USER)) {
         let permissions = []
@@ -159,45 +167,38 @@ export const addInitialData = async () => {
             permissions: permissions
         })
     }
+}
 
-    if (!await UserModel.exists(ADMIN_EMAIL)) {
+
+const addAdminUsers = async (conf) => {
+
+    console.log("SETTING UP ADMIN USERS ...")
+
+    if (!await UserModel.exists(conf.adminUser.email)) {
         let adminRole = await RoleModel.findOne({name: ROLE_ADMIN}).lean()
 
         // create user
         await UserModel.saveUser({
-            email: ADMIN_EMAIL,
+            email: conf.adminUser.email,
             firstName: "App",
             lastName: "Admin",
             roles: [adminRole],
-            password: "admin"
+            password: conf.adminUser.password
         })
     }
 
-    if (!await UserModel.exists(SUPER_ADMIN_EMAIL)) {
+    if (!await UserModel.exists(conf.superAdminUser.email)) {
 
         let superAdminRole = await RoleModel.findOne({name: ROLE_SUPER_ADMIN}).lean()
         // create user
         await UserModel.saveUser({
-            email: SUPER_ADMIN_EMAIL,
+            email: conf.superAdminUser.email,
             firstName: "Super",
             lastName: "Admin",
             roles: [superAdminRole],
-            password: "admin"
+            password: conf.superAdminUser.password
         })
     }
 
-    if (!await UserModel.exists(APP_USER_EMAIL)) {
-        let appUserRole = await RoleModel.findOne({name: ROLE_APP_USER}).lean()
-        // create user
-        await UserModel.saveUser({
-            email: APP_USER_EMAIL,
-            firstName: "App",
-            lastName: "User",
-            roles: [appUserRole],
-            password: "appuser"
-        })
-    }
-
-    console.log("Added initial data")
-
+    console.log("************ FINISHED ADDING SNIPPET DATA ************")
 }

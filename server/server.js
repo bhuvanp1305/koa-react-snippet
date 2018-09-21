@@ -1,5 +1,4 @@
 import Koa from 'koa'
-import Router from 'koa-router'
 import koaBody from 'koa-body'
 import views from 'koa-views'
 import cookie from 'koa-cookie'
@@ -10,18 +9,9 @@ import noConfig from 'no-config'
 import confFile from './config'
 import co from 'co'
 import mongoose from 'mongoose'
-import {userRouter} from "./routers"
-import {UserModel, RoleModel, PermissionModel} from "./models"
-import {addInitialData} from "./utils/setupdata"
+import {setupSnippetData} from "./utils/setupdata"
 import {
-    PROD_ENV,
-    DEV_ENV,
-    ROLE_ADMIN,
-    ROLE_SUPER_ADMIN,
-    ROLE_APP_USER,
-    SUPER_ADMIN_EMAIL,
-    ADMIN_EMAIL,
-    APP_USER_EMAIL
+    PROD_ENV
 } from "./serverconstants"
 import path from 'path'
 import logger from './logger'
@@ -32,45 +22,40 @@ import {HTTP_SERVER_ERROR} from "./errorcodes"
 // Initializing configuration first and then starting application
 co(async () => {
     let conf = await noConfig({config: confFile})
-
     mongoose.Promise = global.Promise
     let connection;
     try {
-
         connection = await mongoose.connect(conf.mongo.url, {
             "useMongoClient": conf.mongo.useMongoClient
         })
-        logger.info("Connection to database Successful!")
+        console.log("Connection to database Successful!")
     } catch (error) {
-        logger.error("Error connecting to database, please check your configurations...")
+        console.log("Error connecting to database, please check your configurations...")
         return
     }
 
-    if (conf.server.setupData) {
-        await addInitialData()
-    }
     if (conf.server.dropDatabase) {
+        console.log("!!! ATTENTION !!! DROP DATABASE CONFIGURATION IS ON. PLEASE RESET IF DON'T INTEND TO DROP DATABASE IN NEXT SERVER START")
+        console.log("DROPPING DATABASE")
         try {
             let names = await connection.db.listCollections().toArray()
-            console.log(names)
             try {
-                let dropPromises = await names.forEach(n => connection.dropDatabase(conf.mongo.dbname))
-                console.log(dropPromises)
+                await names.forEach(n => connection.dropDatabase(conf.mongo.dbname))
             } catch (error) {
-                console.log("drop promise error ", error)
+
             }
-
-            //let dropCollection = connection.db.dropCollection()
-
         } catch (error) {
-            logger.error("Error dropping collections ", error)
+            console.log("Error dropping collections ", error)
             return
         }
     }
 
+    if (conf.server.setupData) {
+        console.log("!!! ATTENTION !!! SETUP DATA CONFIGURATION IS ON. In case you don't want to run setup instructions please set that config to false")
+        await setupSnippetData(conf.setup)
+    }
 
     let app = new Koa()
-
     app.use(cookie())
     app.use(koaBody({multipart: true, formidable: {keepExtensions: true}}))
     app.keys = ['A secret that no one knows']

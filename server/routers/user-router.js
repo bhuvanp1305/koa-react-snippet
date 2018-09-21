@@ -1,15 +1,16 @@
 import Router from 'koa-router'
 import {UserModel} from "../models"
-import * as ErrorCodes from '../errorcodes'
 import {isSuperAdmin, isAdmin, isAppUser} from "../utils"
 import AppError from '../AppError'
 import {ROLE_SUPER_ADMIN} from "../serverconstants"
 import {ACCESS_DENIED, HTTP_FORBIDDEN} from "../errorcodes"
 
-const userRouter = new Router()
+const userRouter = new Router({
+    prefix: "/users"
+})
 
 
-userRouter.get('/users', async ctx => {
+userRouter.get('/', async ctx => {
     // admin would see all users that have role other than super admin
     if (isAdmin(ctx)) {
         return await UserModel.find({"roles.name": {$ne: ROLE_SUPER_ADMIN}}, {password: 0}).exec()
@@ -20,7 +21,7 @@ userRouter.get('/users', async ctx => {
     }
 })
 
-userRouter.post('/users', async ctx => {
+userRouter.post('/', async ctx => {
     if (isSuperAdmin(ctx) || isAdmin(ctx)) {
         return await UserModel.saveUser(ctx.request.body)
     } else {
@@ -29,7 +30,7 @@ userRouter.post('/users', async ctx => {
 
 })
 
-userRouter.put('/users', async ctx => {
+userRouter.put('/', async ctx => {
     if (isSuperAdmin(ctx) || isAdmin(ctx)) {
         return await UserModel.editUser(ctx.request.body)
     } else if (isAppUser(ctx)) {
@@ -46,7 +47,7 @@ userRouter.put('/users', async ctx => {
     }
 })
 
-userRouter.del('/users/:id', async (ctx, next) => {
+userRouter.del('/:id', async (ctx, next) => {
     if (isSuperAdmin(ctx) || isAdmin(ctx)) {
         return await UserModel.deleteUser(ctx.params.id)
     } else {

@@ -4,8 +4,6 @@
   "private": true,
   "scripts": {
     "start": "cross-env BABEL_ENV=server NODE_ENV=development nodemon ./server/server.js --exec babel-node",
-    "start.khushboo": "cross-env BABEL_ENV=server NODE_ENV=khushboo nodemon ./server/server.js --exec babel-node",
-    "start.gaurav": "cross-env BABEL_ENV=server NODE_ENV=gaurav nodemon ./server/server.js --exec babel-node",
     "client.dev.build": "cross-env BABEL_ENV=client webpack -d -w",
     "client.prod.build": "cross-env BABEL_ENV=client webpack -p"
   },
@@ -54,6 +52,7 @@
     "css-loader": "^0.28.7",
     "file-loader": "^1.1.5",
     "node-sass": "^4.7.2",
+    "nodemon": "^1.18.4",
     "react-scripts": "1.0.17",
     "sass-loader": "^6.0.6",
     "style-loader": "^0.19.0",

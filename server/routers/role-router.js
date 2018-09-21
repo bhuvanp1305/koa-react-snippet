@@ -1,13 +1,12 @@
 import Router from 'koa-router'
 import {RoleModel} from '../models'
 import {isSuperAdmin, isAdmin} from "../utils"
-import {ROLE_ADMIN, ROLE_SUPER_ADMIN} from "../serverconstants"
 import {ACCESS_DENIED, HTTP_FORBIDDEN} from "../errorcodes"
 import AppError from '../AppError'
 import _ from 'lodash'
 
 const roleRouter = new Router({
-    prefix: "roles"
+    prefix: "/roles"
 })
 
 /**

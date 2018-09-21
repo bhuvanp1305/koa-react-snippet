@@ -3,7 +3,7 @@ import Router from 'koa-router'
 import PermissionModel from '../models/permissionModel'
 
 const permissionRouter = new Router({
-    prefix: "permissions"
+    prefix: "/permissions"
 })
 
 permissionRouter.get('/', async ctx => {

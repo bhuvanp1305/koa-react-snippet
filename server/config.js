@@ -2,33 +2,37 @@ const config = {
     server: {
         default: {
             port: 3000,
-            setupData: true,
+            setupData: false,
             dropDatabase: false
         },
         development: {
             port: 3000,
-            setupData: true,
-            dropDatabase:true
+            setupData: false,
+            dropDatabase: false
         },
         production: {
             port: 8080,
             setupData: false,
-            dropDatabase:false
+            dropDatabase: false
         }
     },
     mongo: {
         default: {
-            dbname: 'nnxt',
-            url: 'mongodb://localhost/nnxt',
+            dbname: 'koareact',
+            url: 'mongodb://localhost/koareact',
             useMongoClient: true
-        },
-        khushboo: {
-            url: 'mongodb://khushboo:khushboo@ds251197.mlab.com:51197/nnxt',
-            useMongoClient: true
-        },
-        gaurav: {
-            url: 'mongodb://gaurav:gaurav@ds151207.mlab.com:51207/koa-react',
-            useMongoClient: true
+        }
+    },
+    setup: {
+        default: {
+            superAdminUser: {
+                email: 'superadmin@aripratech.com',
+                password: 'superadmin@123'
+            },
+            adminUser: {
+                email: 'admin@aripratech.com',
+                password: 'admin@123'
+            }
         }
     }
 }
